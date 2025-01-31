@@ -72,8 +72,8 @@ def test_check_constraint(db_connection):
         cursor.execute("INSERT INTO orders (user_id, total_amount) VALUES (1, -50.0)")
         db_connection.commit()
 
-def test_example_will_fail():
-    assert 1 + 1 == 3
+def test_example_will_work():
+    assert 1 + 1 == 2
 
 # Run the tests
 if __name__ == "__main__":
