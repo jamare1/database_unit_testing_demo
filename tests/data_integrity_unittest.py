@@ -68,6 +68,9 @@ class TestDataIntegrity(unittest.TestCase):
             self.cursor.execute("INSERT INTO orders (user_id, total_amount) VALUES (1, -50.0)")
             self.conn.commit()
 
+    def test_check_will_fail(self):
+        assert 1 + 1 == 3
+
 # Run the tests
 if __name__ == "__main__":
     unittest.main(verbosity = 2)
