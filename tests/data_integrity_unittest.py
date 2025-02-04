@@ -14,57 +14,49 @@ class TestDataIntegrity(unittest.TestCase):
         self.cursor.execute("""CREATE TABLE orders (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER NOT NULL, total_amount REAL NOT NULL CHECK (total_amount >= 0), FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE)""")
         self.conn.commit()  # Commits the changes to the database
 
-    # Close the database connection after each test
     def tearDown(self):
-        self.conn.close()
+        self.conn.close()  # Close the database connection after each test
 
     # Test Primary Key Constraint
-    def test_primary_key_constraint(self):
+    def test_insertUser_duplicatePrimaryKey_raisesIntegrityError(self):
         self.cursor.execute("INSERT INTO users (username, email) VALUES ('user1', 'user1@example.com')")
         self.conn.commit()
 
-        # Attempt to insert a duplicate ID manually (should fail)
-        with self.assertRaises(sqlite3.IntegrityError):
+        with self.assertRaises(sqlite3.IntegrityError):  # Attempt to insert a duplicate ID manually
             self.cursor.execute("INSERT INTO users (id, username, email) VALUES (1, 'user2', 'user2@example.com')")
             self.conn.commit()
 
     # Test Foreign Key Constraint
-    def test_foreign_key_constraint(self):
-        # Try to insert an order with a non-existent user_id (should fail)
-        with self.assertRaises(sqlite3.IntegrityError):
+    def test_insertOrder_invalidUserId_raisesForeignKeyError(self):
+        with self.assertRaises(sqlite3.IntegrityError):  # Try to insert an order with a non-existent user_id 
             self.cursor.execute("INSERT INTO orders (user_id, total_amount) VALUES (999, 100.0)")
             self.conn.commit()
 
     # Test Unique Constraint
-    def test_unique_constraint(self):
+    def test_insertUser_duplicateUsername_raisesIntegrityError(self):
         self.cursor.execute("INSERT INTO users (username, email) VALUES ('unique_user', 'unique@example.com')")
         self.conn.commit()
 
-        # Attempt to insert a duplicate username (should fail)
-        with self.assertRaises(sqlite3.IntegrityError):
+        with self.assertRaises(sqlite3.IntegrityError):  # Attempt to insert a duplicate username
             self.cursor.execute("INSERT INTO users (username, email) VALUES ('unique_user', 'another@example.com')")
             self.conn.commit()
 
     # Test Non-Null Constraint
-    def test_not_null_constraint(self):
-        # Attempt to insert a NULL username (should fail)
-        with self.assertRaises(sqlite3.IntegrityError):
+    def test_insertUser_nullValues_raisesNotNullConstraintError(self):
+        with self.assertRaises(sqlite3.IntegrityError):  # Attempt to insert a NULL username
             self.cursor.execute("INSERT INTO users (username, email) VALUES (NULL, 'null_email@example.com')")
             self.conn.commit()
 
-        # Attempt to insert a NULL email (should fail)
-        with self.assertRaises(sqlite3.IntegrityError):
+        with self.assertRaises(sqlite3.IntegrityError):  # Attempt to insert a NULL email
             self.cursor.execute("INSERT INTO users (username, email) VALUES ('null_username', NULL)")
             self.conn.commit()
 
     # Test Check Constraint
-    def test_check_constraint(self):
-        # Insert a user first (needed for foreign key constraint)
-        self.cursor.execute("INSERT INTO users (username, email) VALUES ('valid_user', 'valid@example.com')")
+    def test_insertOrder_negativeTotalAmount_raisesCheckConstraintError(self):
+        self.cursor.execute("INSERT INTO users (username, email) VALUES ('valid_user', 'valid@example.com')")  # Insert a user first (needed for foreign key constraint)
         self.conn.commit()
 
-        # Attempt to insert an order with a negative total_amount (should fail)
-        with self.assertRaises(sqlite3.IntegrityError):
+        with self.assertRaises(sqlite3.IntegrityError):  # Attempt to insert an order with a negative total_amount 
             self.cursor.execute("INSERT INTO orders (user_id, total_amount) VALUES (1, -50.0)")
             self.conn.commit()
 

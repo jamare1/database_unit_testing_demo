@@ -22,7 +22,7 @@ def db_connection():
 
 # Test Primary Key Constraint
 # @pytest.mark.run(order=1)
-def test_primary_key_constraint(db_connection):
+def test_insertUser_duplicatePrimaryKey_raisesIntegrityError(db_connection):
     cursor = db_connection.cursor()
     cursor.execute("INSERT INTO users (username, email) VALUES ('user1', 'user1@example.com')")
     db_connection.commit()
@@ -34,7 +34,7 @@ def test_primary_key_constraint(db_connection):
 
 # Test Foreign Key Constraint
 # @pytest.mark.run(order=2)
-def test_foreign_key_constraint(db_connection):
+def test_insertOrder_invalidUserId_raisesForeignKeyError(db_connection):
     cursor = db_connection.cursor()
     with pytest.raises(sqlite3.IntegrityError):  # Foreign key should prevent inserting invalid user_id
         cursor.execute("INSERT INTO orders (user_id, total_amount) VALUES (999, 100.0)")  # No user with id=999
@@ -43,7 +43,7 @@ def test_foreign_key_constraint(db_connection):
 
 # Test Unique Constraint
 # @pytest.mark.run(order=3)
-def test_unique_constraint(db_connection):
+def test_insertUser_duplicateUsername_raisesIntegrityError(db_connection):
     cursor = db_connection.cursor()
     cursor.execute("INSERT INTO users (username, email) VALUES ('unique_user', 'unique@example.com')")
     db_connection.commit()
@@ -54,7 +54,7 @@ def test_unique_constraint(db_connection):
 
 # Test Non-Null Constraint
 # @pytest.mark.run(order=4)
-def test_not_null_constraint(db_connection):
+def test_insertUser_nullValues_raisesNotNullConstraintError(db_connection):
     cursor = db_connection.cursor()
     with pytest.raises(sqlite3.IntegrityError):  # Trying to insert NULL into username
         cursor.execute("INSERT INTO users (username, email) VALUES (NULL, 'null_email@example.com')")
@@ -67,7 +67,7 @@ def test_not_null_constraint(db_connection):
 
 # Test Check Constraint
 # @pytest.mark.run(order=5)
-def test_check_constraint(db_connection):
+def test_insertOrder_negativeTotalAmount_raisesCheckConstraintError(db_connection):
     cursor = db_connection.cursor()
     with pytest.raises(sqlite3.IntegrityError):  # total_amount should be non-negative
         cursor.execute("INSERT INTO orders (user_id, total_amount) VALUES (1, -50.0)")
