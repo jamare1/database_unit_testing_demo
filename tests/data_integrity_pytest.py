@@ -6,7 +6,7 @@ import pytest
 @pytest.fixture  # Pytest's way to set up and teardown a resource, in this case a database connection
 def db_connection():
     conn = sqlite3.connect(":memory:")  # Creates an in-memory database
-    conn.execute("PRAGMA foreign_keys = ON;")  # Enables foreign key constraints
+    # conn.execute("PRAGMA foreign_keys = ON;")  # Enables foreign key constraints
     cursor = conn.cursor()  # Create a cursor object to execute SQL queries
 
     # Create tables with different constraints
@@ -21,7 +21,7 @@ def db_connection():
 
 
 # Test Primary Key Constraint
-# @pytest.mark.run(order=1)
+# @pytest.mark.run(order=3)
 def test_insertUser_duplicatePrimaryKey_raisesIntegrityError(db_connection):
     cursor = db_connection.cursor()
     cursor.execute("INSERT INTO users (username, email) VALUES ('user1', 'user1@example.com')")
@@ -42,7 +42,7 @@ def test_insertOrder_invalidUserId_raisesForeignKeyError(db_connection):
 
 
 # Test Unique Constraint
-# @pytest.mark.run(order=3)
+# @pytest.mark.run(order=1)
 def test_insertUser_duplicateUsername_raisesIntegrityError(db_connection):
     cursor = db_connection.cursor()
     cursor.execute("INSERT INTO users (username, email) VALUES ('unique_user', 'unique@example.com')")
@@ -73,15 +73,15 @@ def test_insertOrder_negativeTotalAmount_raisesCheckConstraintError(db_connectio
         cursor.execute("INSERT INTO orders (user_id, total_amount) VALUES (1, -50.0)")
         db_connection.commit()
 
-"""
+
 def test_example_will_work():
     assert 1 + 1 == 2
 
 def test_example_will_fail():
     assert 1 + 1 == 3
-"""
+
 
 # Run the tests
 if __name__ == "__main__":
-    pytest.main(["-v", __file__])  # Run pytest with verbose output for this file
+    pytest.main(["-q", __file__])  # Run pytest with verbose output for this file
 
