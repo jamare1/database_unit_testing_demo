@@ -6,7 +6,7 @@ import pytest
 @pytest.fixture  # Pytest's way to set up and teardown a resource, in this case a database connection
 def db_connection():
     conn = sqlite3.connect(":memory:")  # Creates an in-memory database
-    # conn.execute("PRAGMA foreign_keys = ON;")  # Enables foreign key constraints
+    conn.execute("PRAGMA foreign_keys = ON;")  # Enables foreign key constraints
     cursor = conn.cursor()  # Create a cursor object to execute SQL queries
 
     # Create tables with different constraints
@@ -77,8 +77,8 @@ def test_insertOrder_negativeTotalAmount_raisesCheckConstraintError(db_connectio
 def test_example_will_work():
     assert 1 + 1 == 2
 
-def test_example_will_fail():
-    assert 1 + 1 == 3
+# def test_example_will_fail():
+#     assert 1 + 1 == 3
 
 
 # Run the tests
